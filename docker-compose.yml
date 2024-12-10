@@ -1,0 +1,123 @@
+version: "3.8"
+services:
+  otel_collector_services: # Agregar servicio para el OpenTelemetry Collector
+    image: otel/opentelemetry-collector-contrib
+    container_name: otel-collector-container
+    restart: always
+    command:
+      - --config=/etc/otelcol-contrib/otel-collector.yml
+    volumes:
+      - ./docker/collector/otel-collector.yml:/etc/otelcol-contrib/otel-collector.yml
+    ports:
+      - "1888:1888" # pprof extension
+      - "8888:8888" # Prometheus metrics exposed by the Collector
+      - "8889:8889" # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP http receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - jaeger_service
+
+
+  jaeger_service: # Servicio para Jaeger
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger-container
+    restart: always
+    ports:
+      - "5775:5775"  # Zookeeper
+      - "6831:6831/udp"  # Agent (UDP)
+      - "6832:6832/udp"  # Agent (UDP)
+      - "5778:5778"  # Admin UI
+      - "14268:14268"  # Jaeger collector HTTP
+      - "14250:14250"  # Jaeger collector gRPC
+      - "16686:16686"  # Jaeger UI
+      - "14285:14285"  # Query
+      - "14290:14290"  # Agent HTTP
+      - "4317"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  prometheus_service:
+    container_name: prometheus_container
+    image: prom/prometheus
+    restart: always
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel_collector_services
+
+  loki_service:
+    container_name: loki_container
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: always
+    ports:
+      - "3100:3100"
+
+  grafana_service:
+    container_name: grafana_container
+    image: grafana/grafana
+    volumes:
+      - ./docker/grafana/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus_service
+      - loki_service
+
+  postgres_service:
+    image: postgres
+    container_name: postgres_container
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user_test
+      POSTGRES_PASSWORD: password_test
+      POSTGRES_DB: test_db
+
+  spring-boot-service-api-gateway:
+    container_name: api-gateway-app
+    restart: always
+    image: api-gateway
+    build:
+      context: ./
+      dockerfile: apigateway/infrastructure/Dockerfile
+    ports:
+      - "8086:8086"
+    depends_on:
+      - otel_collector_services
+
+  spring-boot-service-ms-products:
+    container_name: ms-products-app
+    restart: always
+    image: ms-products
+    build:
+      context: ./
+      dockerfile: ms-products/infrastructure/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_service
+      - otel_collector_services
+      - spring-boot-service-api-gateway
+
+  spring-boot-service-ms-users:
+    container_name: ms-users-app
+    restart: always
+    image: ms-users
+    build:
+      context: ./
+      dockerfile: ms-users/infrastructure/Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres_service
+      - otel_collector_services
+      - spring-boot-service-api-gateway

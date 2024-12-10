@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+
+spring:
+  application:
+    name: ms-products
+
+  threads:
+    virtual:
+      enabled: true
+
+  r2dbc:
+    url: r2dbc:postgresql://postgres_service/test_db
+    username: user_test
+    password: password_test
+  jpa:
+    show-sql: true
+
+  sql:
+    init:
+      data-locations:
+        - classpath:db/schema.sql
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
+      base-path: /api/products/actuator
+
+otel:
+  service:
+    name: ms-products
+  exporter:
+    otlp:
+      # Configuración para trazas (usando HTTP)
+      endpoint: http://otel_collector_services:4318
+
+

@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: api-gateway
+  threads:
+    virtual:
+      enabled: true
+
+  cloud:
+    gateway:
+      routes:
+        - id: ms-products
+          uri: http://spring-boot-service-ms-products:8080
+          predicates:
+            - Path=/api/products/**
+
+        - id: ms-user
+          uri: http://spring-boot-service-ms-users:8081
+          predicates:
+            - Path=/api/users/**
+server:
+  port: 8086
+
+management:
+  endpoint:
+    gateway:
+      enabled: true
+
+    health:
+      group:
+        custom:
+          include: diskSpace,ping
+  
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
+
+otel:
+  service:
+    name: api-gateway
+  exporter:
+    otlp:
+      # Configuración para trazas (usando HTTP)
+      endpoint: http://otel_collector_services:4318
