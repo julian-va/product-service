@@ -1,6 +1,9 @@
+urls:
+  otel-collector: http://localhost:4318
+  postgresql: r2dbc:postgresql://localhost:5432/test_db
+
 server:
   port: 8080
-
 
 spring:
   application:
@@ -11,7 +14,7 @@ spring:
       enabled: true
 
   r2dbc:
-    url: r2dbc:postgresql://postgres_service/test_db
+    url: ${urls.postgresql}
     username: user_test
     password: password_test
   jpa:
@@ -30,10 +33,10 @@ management:
 
 otel:
   service:
-    name: ms-products
+    name: ${spring.application.name}
   exporter:
     otlp:
       # Configuración para trazas (usando HTTP)
-      endpoint: http://otel_collector_services:4318
+      endpoint: ${urls.otel-collector}
 
 

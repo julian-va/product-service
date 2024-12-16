@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("io.freefair.lombok") // Note: version is NOT specified here. See Step 7
     // add any other Gradle plugins here
+    // id("org.jetbrains.kotlin.kapt")
 }
 
 repositories {

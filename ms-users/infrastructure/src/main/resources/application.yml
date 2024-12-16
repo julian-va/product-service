@@ -29,7 +29,6 @@ management:
       exposure:
         include:
           - '*'
-      base-path: /api/users/actuator
 
 otel:
   service:

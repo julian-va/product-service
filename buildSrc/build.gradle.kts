@@ -9,4 +9,5 @@ dependencies {
     // Provide the coordinates for your Gradle plugins here, including their versions
     implementation("io.freefair.gradle:lombok-plugin:8.6")
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.25")
+    //implementation("org.jetbrains.kotlin.kapt:org.jetbrains.kotlin.kapt.gradle.plugin:1.9.25")
 }
