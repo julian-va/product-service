@@ -34,14 +34,9 @@ class CategoryGateway(private val categoryRepository: CategoryRepository, privat
         val categoryEntity: CategoryEntity? = categoryRepository.findById(id = id)
         return categoryEntity?.let { optionalCategoryEntity ->
             val categoryToUpdate = optionalCategoryEntity.copy(
-                nameCategory = checkNull(
-                    value1 = entity.nameCategory,
-                    value2 = optionalCategoryEntity.nameCategory
-                ).toString(),
-                description = checkNull(
-                    value1 = entity.description,
-                    value2 = optionalCategoryEntity.description
-                ).toString(),
+                nameCategory = entity.validNameCategory(valueDefault = optionalCategoryEntity.nameCategory),
+                description = entity.validDescription(valueDefault = optionalCategoryEntity.description),
+                updateDate = entity.updateDate
             )
             return categoryMapper.toCategory(categoryEntity = categoryRepository.save(entity = categoryToUpdate))
         }
@@ -51,11 +46,4 @@ class CategoryGateway(private val categoryRepository: CategoryRepository, privat
         categoryRepository.findById(id = id)?.let { categoryEntity -> categoryRepository.delete(categoryEntity) }
     }
 
-    private fun checkNull(value1: Any, value2: Any): Any {
-        if (value1 != null) {
-            return value1
-        } else {
-            return value2
-        }
-    }
 }
