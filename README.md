@@ -5,7 +5,9 @@
 Product Service is a modular backend application designed for managing products and users. It is built using Java and
 Kotlin, leveraging the Spring Boot framework. The project follows a microservices architecture, with separate modules
 for products, users, and an API gateway. It is suitable for scalable enterprise environments and can be run locally or
-with Docker.
+with Docker. The project is built with reactive programming principles using Spring WebFlux and Project Reactor,
+enabling
+asynchronous and non-blocking operations for high scalability.
 
 ## Project Structure
 
@@ -16,8 +18,9 @@ with Docker.
 
 ## Prerequisites
 
-- Java 17+
-- Gradle 7+
+- Java 21+
+- Gradle 8.8+
+- Spring Boot 3.3.5+
 - Docker (for containerized deployment)
 
 ## How to Run Locally
@@ -66,4 +69,3 @@ Feel free to open issues or submit pull requests. For major changes, please disc
 ## License
 
 This project is licensed under the MIT License.
-
